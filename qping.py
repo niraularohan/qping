@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #
-# Updated by Crazy Danish Hacker,abu
 
 import requests
 import sys
@@ -33,7 +32,10 @@ if len(sys.argv) <= 1:
 
 # Set the output filename to be used globally
 filename = "OnlineDomains_{}".format(sys.argv[1])
-header={'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.30 (KHTML, like Gecko) Ubuntu/11.04 Chromium/12.0.742.112 Chrome/12.0.742.112 Safari/534.30'} # some site return 403 instead of 200 when request without user agent.
+# some site return 403 instead of 200 when request without user agent.
+header = {
+    'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.30 (KHTML, like Gecko) Ubuntu/11.04 Chromium/12.0.742.112 Chrome/12.0.742.112 Safari/534.30'}
+
 
 def create_file(user_file):
     with open(user_file, "w") as output_file:
@@ -47,18 +49,22 @@ def main():
         create_file(filename)
 
         for line in input_file:
-            url = "http://{}".format(line.strip())  # Note: Strip only works at the beginning or end of a string.
+            # Note: Strip only works at the beginning or end of a string.
+            url = "https://{}".format(line.strip())
             try:
-                req = requests.get(url, timeout=timeout,headers=header)
+                req = requests.get(url, timeout=timeout, headers=header)
                 if req.status_code == 200:
                     extra = "- HTTP 200 OK" if verbose else ""
                     print("[+] Domain is online! ({}) {}".format(url, extra))
                     with open(filename, "a") as output_file:
-                        output_file.write("{}\n".format(url))
-                        output_file.close()  # Not sure if we need to call close() here as "with open" may handle that.
+                        output_file.write("{}\n".format(
+                            line.strip()))  # Change here
+                        output_file.close()
                 else:
-                    extra = "HTTP {}".format(req.status_code) if verbose else ""
-                    print("[-] Domain did not return 200 OK! ({}) {}".format(url, extra))
+                    extra = "HTTP {}".format(
+                        req.status_code) if verbose else ""
+                    print(
+                        "[-] Domain did not return 200 OK! ({}) {}".format(url, extra))
             except KeyboardInterrupt:
                 exit()
             except requests.exceptions.Timeout:
